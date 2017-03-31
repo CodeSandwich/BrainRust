@@ -1,0 +1,11 @@
+[root]
+name = "brainrust_bin"
+version = "0.1.0"
+dependencies = [
+ "brainrust 0.1.0",
+]
+
+[[package]]
+name = "brainrust"
+version = "0.1.0"
+

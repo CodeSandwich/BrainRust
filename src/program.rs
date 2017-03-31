@@ -1,3 +1,4 @@
+use MemoryCellEditor;
 use command::Command;
 use parser;
 use parser::ParseError;
@@ -16,7 +17,8 @@ impl Program {
         })
     }
 
-    pub fn execute(&self, input: &mut Iterator<Item=u8>, output: &mut Write) -> Result<(), ExecutionError> {
-        execution::execute(&self.commands, input, output)
+    pub fn execute<T, U: MemoryCellEditor<T>>(&self, cell_editor: &U, input: &mut Iterator<Item=u8>,
+                output: &mut Write) -> Result<(), ExecutionError> {
+        execution::execute(&self.commands, cell_editor, input, output)
     }
 }

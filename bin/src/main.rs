@@ -1,6 +1,6 @@
 extern crate brainrust;
 
-use brainrust::{ExecutionError, ParseError, Program};
+use brainrust::{U8Editor, ExecutionError, ParseError, Program};
 use std::io;
 use std::io::Read;
 use std::env;
@@ -46,7 +46,7 @@ pub fn main() {
                 _ => true,
             })
             .map(|i| i.unwrap());
-        program.execute(&mut input, &mut io::stdout())
+        program.execute(&U8Editor::default(), &mut input, &mut io::stdout())
     };
     match execution_result {
         Err(ExecutionError::CannotReadFromInput) => {

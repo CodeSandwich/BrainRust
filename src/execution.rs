@@ -1,44 +1,35 @@
 use command::Command;
 use memory::Memory;
+use memory_cell_editor::MemoryCellEditor;
 use std::io::Write;
-use std::u8::{MAX, MIN};
 
-pub fn execute(commands: &Vec<Command>, input: &mut Iterator<Item=u8>, output: &mut Write)
-               -> Result<(), ExecutionError> {
+pub fn execute<T, U: MemoryCellEditor<T>>(commands: &Vec<Command>, cell_editor: &U, input: &mut Iterator<Item=u8>,
+                  output: &mut Write) -> Result<(), ExecutionError> {
     let mut cmd_idx = 0;
     let mut mem_idx = 0;
-    let mut mem = Memory::new();
+    let mut mem = Memory::<T>::new();
     loop {
         match commands[cmd_idx] {
             Command::MemFwd => {
-                mem_idx += 1;
+                mem_idx += 1
             },
             Command::MemBack => {
-                mem_idx -= 1;
+                mem_idx -= 1
             },
             Command::Inc => {
-                let value = mem.get(mem_idx);
-                let value = if value == MAX { MIN } else { value + 1 };
-                mem.set(mem_idx, value);
+                cell_editor.increment(mem.get(mem_idx, cell_editor))
             },
             Command::Dec => {
-                let value = mem.get(mem_idx);
-                let value = if value == MIN { MAX } else { value - 1 };
-                mem.set(mem_idx, value);
+                cell_editor.decrement(mem.get(mem_idx, cell_editor))
             },
             Command::Write => {
-                let value = [mem.get(mem_idx)];
-                match output.write(&value) {
-                    Ok(0) | Err(_) => return Err(ExecutionError::CannotWriteToOutput),
-                    _ => ()
-                }
+                cell_editor.write(mem.get(mem_idx, cell_editor), output).or(Err(ExecutionError::CannotWriteToOutput))?
             },
             Command::Read => {
-                let value = input.next().ok_or(ExecutionError::CannotReadFromInput)?;
-                mem.set(mem_idx, value);
+                cell_editor.read(mem.get(mem_idx, cell_editor), input).or(Err(ExecutionError::CannotReadFromInput))?
             },
-            Command::GoToIfZero(go_to_idx) => {
-                if mem.get(mem_idx) == 0 {
+            Command::GoToIf(go_to_idx) => {
+                if cell_editor.should_jump(mem.get(mem_idx, cell_editor)) {
                     cmd_idx = go_to_idx;
                     continue;
                 }

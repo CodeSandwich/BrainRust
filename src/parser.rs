@@ -19,7 +19,7 @@ pub fn parse(code: &mut Iterator<Item=char>) -> Result<Vec<Command>, ParseError>
             ']' => {
                 let last_loop = open_loops.pop().ok_or(ParseError::NonexistentLoopClosed(index))?;
                 commands.push(Command::GoTo(last_loop));
-                commands[last_loop] = Command::GoToIfZero(commands.len());
+                commands[last_loop] = Command::GoToIf(commands.len());
             },
             _ => (),
         }

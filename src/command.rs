@@ -5,7 +5,7 @@ pub enum Command {
     Dec,
     Write,
     Read,
-    GoToIfZero(usize),
+    GoToIf(usize),
     GoTo(usize),
     End,
 }
